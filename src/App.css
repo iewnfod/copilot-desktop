@@ -1,0 +1,27 @@
+:root {
+  text-rendering: optimizeLegibility;
+  background: transparent;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow: hidden;
+}
+
+.container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+}
