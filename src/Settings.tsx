@@ -1,8 +1,8 @@
 import {invoke} from "@tauri-apps/api/core";
 import {
-	Box,
+	Box, Button,
 	Card,
-	Divider,
+	Divider, Input,
 	Stack,
 	Switch,
 	Tab,
@@ -12,16 +12,38 @@ import {
 	Typography,
 	TypographySystem
 } from "@mui/joy";
-import { Preference } from "./preference";
+import {DEFAULT_PREFERENCE, Preference} from "./preference";
+import {useEffect, useState} from "react";
+import toast from "react-hot-toast";
 
-export default function SettingsPage({pre, setPre} : {pre: Preference, setPre: (pre: Preference) => void}) {
+export default function SettingsPage() {
+	const [pre, setPre] = useState<Preference>(DEFAULT_PREFERENCE);
+	const [AIUrlInput, setAIUrlInput] = useState(pre.ai_url);
+
+	useEffect(() => {
+		invoke("get_preference").then((pre) => {
+			// @ts-ignore
+			setPre(pre ?? DEFAULT_PREFERENCE);
+		});
+	}, []);
+
+	useEffect(() => {
+		setAIUrlInput(pre.ai_url);
+	}, [pre, setPre]);
+
 	function updatePreference(preKey: keyof Preference, value: any) {
 		const newPreference: Preference = JSON.parse(JSON.stringify(pre));
 		// @ts-ignore
 		newPreference[preKey] = value;
 		invoke("set_preference", {pre: newPreference}).then(() => {
 			setPre(newPreference);
+			toast.success("Preference updated successfully.", {id: "pus"});
 		});
+	}
+
+	function submitAIUrl() {
+		let url: string = AIUrlInput ?? pre.ai_url;
+		updatePreference("ai_url", url);
 	}
 
 	return (
@@ -87,7 +109,30 @@ export default function SettingsPage({pre, setPre} : {pre: Preference, setPre: (
 					</Card>
 					<Card variant="soft">
 						<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center', gap: 2, p: 1}}>
-
+							<Stack sx={{width: '100%'}} gap={1}>
+								<Stack>
+									<Typography level="title-md">
+										Copilot Site
+									</Typography>
+									<RestartSentence/>
+								</Stack>
+								<Stack direction="row" justifyContent="space-between" sx={{width: '100%'}} gap={1}>
+									<Input
+										value={AIUrlInput}
+										sx={{flexGrow: 1}}
+										id="ai-url-input"
+										endDecorator={(
+											<Button
+												sx={{mt: 1, mb: 1, mr: 0}}
+												onClick={() => submitAIUrl()}
+											>
+												Save
+											</Button>
+										)}
+										onChange={(e) => setAIUrlInput(e.target.value)}
+									/>
+								</Stack>
+							</Stack>
 						</Box>
 					</Card>
 				</Box>
